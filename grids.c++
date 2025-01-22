@@ -1,82 +1,103 @@
-
 #include <iostream>
 #include <map>
+#include <iomanip>
 #include <string>
 #include <limits>
 
 using namespace std;
 
+// Grid size
+const int GRID_SIZE = 10;
+
 // Define a structure to represent grid coordinates
 struct GridPosition {
-    long long x, y;
+    char col;  // Columns from A to J
+    int row;   // Rows from 1 to 10
 
     // Custom comparison for std::map ordering
     bool operator<(const GridPosition& other) const {
-        if (x == other.x)
-            return y < other.y;
-        return x < other.x;
+        if (col == other.col)
+            return row < other.row;
+        return col < other.col;
     }
 };
 
+// Function to display the grid
+void displayGrid(const map<GridPosition, string>& grid) {
+    cout << "   ";
+    for (char col = 'A'; col < 'A' + GRID_SIZE; col++) {
+        cout << col << "   ";
+    }
+    cout << "\n";
+
+    for (int row = 1; row <= GRID_SIZE; row++) {
+        cout << setw(2) << row << " ";
+        for (char col = 'A'; col < 'A' + GRID_SIZE; col++) {
+            GridPosition pos = {col, row};
+            if (grid.count(pos)) {
+                cout << "[X] ";
+            } else {
+                cout << "[ ] ";
+            }
+        }
+        cout << endl;
+    }
+    cout << "Your grid\n";
+}
+
 int main() {
-    map<GridPosition, string> grid;  // Map to store messages at (x, y)
+    map<GridPosition, string> grid;  // Map to store messages at (col, row)
     int choice;
-    
-    cout << "Welcome to the 10^10 Grid Messaging System!\n";
-    
+
+    cout << "Welcome to the 10x10 Grid Messaging System!\n";
+
     while (true) {
         cout << "\nMenu:\n";
         cout << "1. Add a message\n";
         cout << "2. View a message\n";
-        cout << "3. Display all messages\n";
+        cout << "3. Display the grid\n";
         cout << "4. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
         if (choice == 1) {
-            long long x, y;
+            char col;
+            int row;
             string message;
-            cout << "Enter X coordinate (0 to 10^10): ";
-            cin >> x;
-            cout << "Enter Y coordinate (0 to 10^10): ";
-            cin >> y;
+            cout << "Enter column (A-J): ";
+            cin >> col;
+            cout << "Enter row (1-10): ";
+            cin >> row;
             cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Clear input buffer
             cout << "Enter your message: ";
             getline(cin, message);
 
-            if (x < 0 || y < 0 || x >= 1e10 || y >= 1e10) {
+            if (col < 'A' || col > 'J' || row < 1 || row > 10) {
                 cout << "Invalid coordinates! Please try again.\n";
             } else {
-                grid[{x, y}] = message;
-                cout << "Message stored at (" << x << ", " << y << ").\n";
+                grid[{col, row}] = message;
+                cout << "Message stored at (" << col << ", " << row << ").\n";
             }
         } 
         
         else if (choice == 2) {
-            long long x, y;
-            cout << "Enter X coordinate to view: ";
-            cin >> x;
-            cout << "Enter Y coordinate to view: ";
-            cin >> y;
+            char col;
+            int row;
+            cout << "Enter column (A-J) to view: ";
+            cin >> col;
+            cout << "Enter row (1-10) to view: ";
+            cin >> row;
 
-            auto it = grid.find({x, y});
+            auto it = grid.find({col, row});
             if (it != grid.end()) {
-                cout << "Message at (" << x << ", " << y << "): " << it->second << endl;
+                cout << "Message at (" << col << ", " << row << "): " << it->second << endl;
             } else {
                 cout << "No message found at the specified location.\n";
             }
         } 
         
         else if (choice == 3) {
-            if (grid.empty()) {
-                cout << "No messages stored.\n";
-            } else {
-                cout << "Stored messages:\n";
-                for (const auto& entry : grid) {
-                    cout << "Location (" << entry.first.x << ", " << entry.first.y << "): " 
-                         << entry.second << endl;
-                }
-            }
+            displayGrid(grid);
         } 
         
         else if (choice == 4) {
